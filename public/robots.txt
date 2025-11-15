@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://tu-subdominio.com/sitemap.xml
+
+# Crawl-delay (opcional, ajusta según necesites)
+Crawl-delay: 1
+

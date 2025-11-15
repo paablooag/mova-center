@@ -4,21 +4,77 @@ import ScrollToTop from '../components/ScrollToTop.astro';
 interface Props {
 	title?: string;
 	description?: string;
+	keywords?: string;
+	ogImage?: string;
+	canonical?: string;
 }
 
-const { title = 'MOVA CENTER - Fuerza y Funcional', description = 'Centro de entrenamiento funcional en Granada. Grupos, lesiones y fuerza.' } = Astro.props;
+const siteUrl = Astro.site?.href || 'https://tu-subdominio.com'; // Actualiza con tu URL real
+const defaultTitle = 'MOVA CENTER - Entrenamiento Funcional en Granada | Fuerza y Funcional';
+const defaultDescription = 'Centro de entrenamiento funcional en Granada. Sesiones grupales, recuperación de lesiones y entrenamiento de fuerza. Profesionales especializados en entrenamiento funcional personalizado.';
+const defaultKeywords = 'entrenamiento funcional Granada, gimnasio Granada, entrenamiento personal Granada, recuperación lesiones Granada, fuerza funcional, entrenamiento grupal Granada, fitness Granada, ejercicio funcional';
+const defaultOgImage = `${siteUrl}/logo-fondo.jpg`;
+
+const { 
+	title = defaultTitle, 
+	description = defaultDescription,
+	keywords = defaultKeywords,
+	ogImage = defaultOgImage,
+	canonical
+} = Astro.props;
+
+const canonicalUrl = canonical || (Astro.url ? new URL(Astro.url.pathname, siteUrl).href : siteUrl);
+const fullTitle = title.includes('MOVA CENTER') ? title : `${title} | MOVA CENTER`;
 ---
 
 <!doctype html>
 <html lang="es">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content={description} />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="icon" type="image/jpeg" href="/logo-fondo.jpg" />
-		<link rel="apple-touch-icon" href="/logo-fondo.jpg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
+		
+		<!-- Primary Meta Tags -->
+		<title>{fullTitle}</title>
+		<meta name="title" content={fullTitle} />
+		<meta name="description" content={description} />
+		<meta name="keywords" content={keywords} />
+		<meta name="author" content="MOVA CENTER" />
+		<meta name="robots" content="index, follow" />
+		<meta name="language" content="Spanish" />
+		<meta name="revisit-after" content="7 days" />
+		
+		<!-- Canonical URL -->
+		<link rel="canonical" href={canonicalUrl} />
+		
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:title" content={fullTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:locale" content="es_ES" />
+		<meta property="og:site_name" content="MOVA CENTER" />
+		
+		<!-- Twitter -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:url" content={canonicalUrl} />
+		<meta name="twitter:title" content={fullTitle} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
+		
+		<!-- Favicons -->
+		<link rel="icon" type="image/jpeg" href="/logo-fondo.jpg" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/logo-fondo.jpg" />
+		
+		<!-- Preconnect for performance -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+		
+		<!-- Theme Color -->
+		<meta name="theme-color" content="#000000" />
 	</head>
 	<body class="bg-white text-black antialiased">
 		<div id="spotlight" class="spotlight"></div>
