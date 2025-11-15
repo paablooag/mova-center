@@ -1,0 +1,105 @@
+---
+import ScrollToTop from '../components/ScrollToTop.astro';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const { title = 'MOVA CENTER - Fuerza y Funcional', description = 'Centro de entrenamiento funcional en Granada. Grupos, lesiones y fuerza.' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="icon" type="image/jpeg" href="/logo-fondo.jpg" />
+		<link rel="apple-touch-icon" href="/logo-fondo.jpg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body class="bg-white text-black antialiased">
+		<div id="spotlight" class="spotlight"></div>
+		<slot />
+		<ScrollToTop />
+		<script>
+			// Efecto de linterna que sigue al cursor con cambio de color
+			const spotlight = document.getElementById('spotlight');
+			if (spotlight) {
+				let mouseX = 0;
+				let mouseY = 0;
+				let spotlightX = 0;
+				let spotlightY = 0;
+				let colorHue = 0;
+
+				document.addEventListener('mousemove', (e) => {
+					mouseX = e.clientX;
+					mouseY = e.clientY;
+					
+					// Cambio de color basado en la posición del cursor
+					colorHue = (mouseX + mouseY) % 360;
+				});
+
+				function animateSpotlight() {
+					if (!spotlight) return;
+					
+					const dx = mouseX - spotlightX;
+					const dy = mouseY - spotlightY;
+					spotlightX += dx * 0.1;
+					spotlightY += dy * 0.1;
+					
+					spotlight.style.left = spotlightX + 'px';
+					spotlight.style.top = spotlightY + 'px';
+					
+					// Aplicar cambio de color dinámico basado en posición
+					const hue = ((spotlightX * 0.1 + spotlightY * 0.1) % 360);
+					const saturation = 40 + Math.sin(Date.now() * 0.001) * 20;
+					spotlight.style.background = `radial-gradient(circle, hsla(${hue}, ${saturation}%, 0%, 0.15) 0%, transparent 70%)`;
+					
+					requestAnimationFrame(animateSpotlight);
+				}
+
+				animateSpotlight();
+			}
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	html {
+		font-family: system-ui, sans-serif;
+		scroll-behavior: smooth;
+	}
+
+	body {
+		margin: 0;
+		padding: 0;
+		position: relative;
+		overflow-x: hidden;
+	}
+
+	.spotlight {
+		position: fixed;
+		width: 600px;
+		height: 600px;
+		border-radius: 50%;
+		background: radial-gradient(circle, rgba(0, 0, 0, 0.15) 0%, transparent 70%);
+		pointer-events: none;
+		transform: translate(-50%, -50%);
+		z-index: 9999;
+		mix-blend-mode: multiply;
+		transition: background 0.1s ease;
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	section {
+		position: relative;
+		z-index: 1;
+	}
+</style>
+

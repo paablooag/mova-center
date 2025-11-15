@@ -1,0 +1,60 @@
+<section class="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-white">
+	<div class="max-w-6xl mx-auto">
+		<div class="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
+			<div class="animate-slide-in-left order-2 md:order-1">
+				<h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
+					Sobre MOVA CENTER
+				</h2>
+				<p class="text-base sm:text-lg leading-relaxed mb-4 text-gray-800">
+					En MOVA CENTER nos especializamos en entrenamiento funcional y fuerza, diseñado para mejorar tu rendimiento físico y calidad de vida.
+				</p>
+				<p class="text-base sm:text-lg leading-relaxed mb-4 text-gray-800">
+					Trabajamos con grupos reducidos para garantizar atención personalizada y resultados efectivos. Nuestro enfoque se adapta a cada persona, desde principiantes hasta atletas avanzados.
+				</p>
+				<p class="text-base sm:text-lg leading-relaxed text-gray-800">
+					Además, ofrecemos programas especializados para la recuperación de lesiones, combinando ejercicio terapéutico con entrenamiento funcional.
+				</p>
+			</div>
+			<div class="relative h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-lg animate-slide-in-right hover:scale-105 transition-transform duration-500 order-1 md:order-2">
+				<img 
+					src="/imagen-local.jpg" 
+					alt="MOVA CENTER - Instalaciones en Granada" 
+					class="w-full h-full object-cover"
+				/>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	@keyframes slide-in-left {
+		from {
+			opacity: 0;
+			transform: translateX(-50px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes slide-in-right {
+		from {
+			opacity: 0;
+			transform: translateX(50px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	.animate-slide-in-left {
+		animation: slide-in-left 0.8s ease-out;
+	}
+
+	.animate-slide-in-right {
+		animation: slide-in-right 0.8s ease-out;
+	}
+</style>
+

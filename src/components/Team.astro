@@ -1,0 +1,134 @@
+<section id="equipo" class="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-white">
+	<div class="max-w-6xl mx-auto">
+		<h2 id="team-title" class="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 sm:mb-12 text-center">
+			Nuestro Equipo
+		</h2>
+		<div class="grid md:grid-cols-2 gap-8 sm:gap-12 justify-center max-w-4xl mx-auto">
+			<div id="martin-card" class="text-center team-member">
+				<div class="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto mb-4 sm:mb-6 rounded-full overflow-hidden shadow-lg team-photo">
+					<img 
+						src="/entrenador-1-martin.jpg" 
+						alt="Martín - Entrenador personal MOVA" 
+						class="w-full h-full object-cover"
+					/>
+				</div>
+				<h3 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">Martín</h3>
+				<p class="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 italic">Entrenador personal y parte del equipo técnico de MOVA</p>
+				<div class="text-sm sm:text-base text-gray-700 space-y-2 sm:space-y-3 text-left max-w-md mx-auto px-2">
+					<p>
+						En nuestro centro creemos que el entrenamiento va más allá del físico: se trata de superarte, construir hábitos y acercarte cada día a tu mejor versión.
+					</p>
+					<p>
+						Acompañamos a cada persona en su camino, con un plan adaptado, realista y efectivo.
+					</p>
+					<p class="font-semibold text-black">
+						💥 En MOVA no solo entrenamos, cumplimos objetivos.
+					</p>
+				</div>
+			</div>
+			<div id="alex-card" class="text-center team-member">
+				<div class="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto mb-4 sm:mb-6 rounded-full overflow-hidden shadow-lg team-photo">
+					<img 
+						src="../public/entrenador-2-alex.jpg" 
+						alt="Alex - Entrenador MOVA" 
+						class="w-full h-full object-cover"
+					/>
+				</div>
+				<h3 class="text-2xl font-bold mb-3">Alex</h3>
+				<p class="text-gray-600 mb-4 italic">Entrenador y parte del equipo técnico de MOVA</p>
+				<div class="text-gray-700 space-y-3 text-left max-w-md mx-auto">
+					<p>
+						¡Hola! Mi nombre es Alex y formo parte del equipo de entrenamiento de MOVA. 💪🏽
+					</p>
+					<p>
+						Mi objetivo es acompañarte en cada paso de tu proceso, ofreciéndote un servicio personalizado enfocado tanto en la mejora de tu día a día, como en la readaptación de lesiones.
+					</p>
+					<p>
+						Busco que cada sesión sea una experiencia segura, efectiva y adaptada a tus necesidades, para que logres tus metas de la mejor manera posible. 😊❤️
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	import { gsap } from 'gsap';
+
+	function initTeam() {
+		const teamTitle = document.querySelector('#team-title');
+		const martinCard = document.querySelector('#martin-card');
+		const alexCard = document.querySelector('#alex-card');
+		const teamPhotos = document.querySelectorAll('.team-photo');
+		
+		if (!teamTitle || !martinCard || !alexCard) {
+			requestAnimationFrame(initTeam);
+			return;
+		}
+
+		// Animación del título
+		gsap.set('#team-title', { opacity: 0, y: -30, scale: 0.9 });
+		gsap.to('#team-title', {
+			opacity: 1,
+			y: 0,
+			scale: 1,
+			duration: 0.8,
+			ease: 'back.out(1.7)'
+		});
+
+		// Animación de Martín desde la izquierda
+		gsap.set('#martin-card', { opacity: 0, x: -100, rotationY: -20 });
+		gsap.to('#martin-card', {
+			opacity: 1,
+			x: 0,
+			rotationY: 0,
+			duration: 0.8,
+			delay: 0.2,
+			ease: 'back.out(1.7)'
+		});
+
+		// Animación de Alex desde la derecha
+		gsap.set('#alex-card', { opacity: 0, x: 100, rotationY: 20 });
+		gsap.to('#alex-card', {
+			opacity: 1,
+			x: 0,
+			rotationY: 0,
+			duration: 0.8,
+			delay: 0.4,
+			ease: 'back.out(1.7)'
+		});
+
+		// Animación de las fotos con efecto zoom
+		teamPhotos.forEach((photo, index) => {
+			gsap.set(photo, { scale: 0.8, opacity: 0 });
+			gsap.to(photo, {
+				scale: 1,
+				opacity: 1,
+				duration: 0.6,
+				delay: 0.5 + (index * 0.2),
+				ease: 'elastic.out(1, 0.6)'
+			});
+		});
+	}
+
+	// Inicializar cuando el DOM esté listo
+	if (typeof window !== 'undefined') {
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', initTeam);
+		} else {
+			initTeam();
+		}
+	}
+</script>
+
+<style>
+	.team-member {
+		transform-origin: center center;
+		transform-style: preserve-3d;
+	}
+
+	.team-photo {
+		transform-origin: center center;
+	}
+</style>
+

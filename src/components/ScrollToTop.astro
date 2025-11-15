@@ -1,0 +1,221 @@
+<button id="scroll-to-top" class="scroll-to-top-button" aria-label="Volver arriba">
+	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M18 15l-6-6-6 6"/>
+	</svg>
+</button>
+
+<script>
+	import { gsap } from 'gsap';
+
+	function initScrollToTop() {
+		const button = document.getElementById('scroll-to-top');
+		if (!button) {
+			requestAnimationFrame(initScrollToTop);
+			return;
+		}
+
+		// Inicialmente oculto y fuera de la pantalla
+		gsap.set(button, { 
+			opacity: 0, 
+			scale: 0.5, 
+			y: 100,
+			display: 'flex'
+		});
+
+		let isVisible = false;
+		let pulseAnimation = null;
+		const scrollThreshold = 300; // Aparece después de 300px de scroll
+
+		// Función para mostrar/ocultar el botón
+		function handleScroll() {
+			const scrollY = window.scrollY || window.pageYOffset;
+
+			if (scrollY > scrollThreshold && !isVisible) {
+				isVisible = true;
+				gsap.to(button, {
+					opacity: 1,
+					scale: 1,
+					y: 0,
+					duration: 0.5,
+					ease: 'back.out(1.7)',
+					display: 'flex',
+					onComplete: () => {
+						// Iniciar animación de pulso cuando se hace visible
+						if (!pulseAnimation) {
+							pulseAnimation = gsap.to(button, {
+								y: -8,
+								duration: 2,
+								ease: 'sine.inOut',
+								yoyo: true,
+								repeat: -1
+							});
+						}
+					}
+				});
+			} else if (scrollY <= scrollThreshold && isVisible) {
+				isVisible = false;
+				// Detener animación de pulso
+				if (pulseAnimation) {
+					pulseAnimation.kill();
+					pulseAnimation = null;
+				}
+				gsap.to(button, {
+					opacity: 0,
+					scale: 0.5,
+					y: 100,
+					duration: 0.3,
+					ease: 'power2.in',
+					onComplete: () => {
+						gsap.set(button, { display: 'none' });
+					}
+				});
+			}
+		}
+
+		// Event listener para el scroll
+		window.addEventListener('scroll', handleScroll, { passive: true });
+		handleScroll(); // Verificar estado inicial
+
+		// Función para scroll suave hacia arriba
+		button.addEventListener('click', () => {
+			// Detener temporalmente el pulso
+			const wasPulsing = pulseAnimation !== null;
+			if (pulseAnimation) {
+				pulseAnimation.kill();
+				pulseAnimation = null;
+			}
+
+			// Animación suave de scroll usando requestAnimationFrame
+			const startY = window.scrollY || document.documentElement.scrollTop;
+			const startTime = Date.now();
+			const duration = 1000; // 1 segundo
+
+			const animateScroll = () => {
+				const currentTime = Date.now();
+				const elapsed = currentTime - startTime;
+				const progress = Math.min(elapsed / duration, 1);
+
+				// Función de easing (easeInOutCubic)
+				const easeInOutCubic = (t) => {
+					return t < 0.5
+						? 4 * t * t * t
+						: 1 - Math.pow(-2 * t + 2, 3) / 2;
+				};
+
+				const easedProgress = easeInOutCubic(progress);
+				const currentY = startY * (1 - easedProgress);
+
+				window.scrollTo(0, currentY);
+
+				if (progress < 1) {
+					requestAnimationFrame(animateScroll);
+				} else {
+					// Reiniciar el pulso después de llegar arriba si estaba activo
+					if (wasPulsing && isVisible) {
+						pulseAnimation = gsap.to(button, {
+							y: -8,
+							duration: 2,
+							ease: 'sine.inOut',
+							yoyo: true,
+							repeat: -1
+						});
+					}
+				}
+			};
+
+			animateScroll();
+
+			// Animación del botón al hacer click
+			gsap.to(button, {
+				scale: 0.9,
+				duration: 0.1,
+				yoyo: true,
+				repeat: 1,
+				ease: 'power2.inOut'
+			});
+		});
+
+		// Efecto hover mejorado
+		button.addEventListener('mouseenter', () => {
+			gsap.to(button, {
+				scale: 1.15,
+				rotation: 5,
+				y: -5,
+				duration: 0.3,
+				ease: 'back.out(2)'
+			});
+		});
+
+		button.addEventListener('mouseleave', () => {
+			gsap.to(button, {
+				scale: 1,
+				rotation: 0,
+				y: 0,
+				duration: 0.3,
+				ease: 'power2.out'
+			});
+		});
+
+	}
+
+	// Inicializar cuando el DOM esté listo
+	if (typeof window !== 'undefined') {
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', initScrollToTop);
+		} else {
+			initScrollToTop();
+		}
+	}
+</script>
+
+<style>
+	.scroll-to-top-button {
+		position: fixed;
+		bottom: 30px;
+		right: 30px;
+		width: 50px;
+		height: 50px;
+		background: #000;
+		color: #fff;
+		border: none;
+		border-radius: 50%;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 1000;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+		transition: box-shadow 0.3s ease;
+		transform-origin: center center;
+	}
+
+	.scroll-to-top-button:hover {
+		box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+		background: #333;
+	}
+
+	.scroll-to-top-button:active {
+		background: #555;
+	}
+
+	.scroll-to-top-button svg {
+		width: 20px;
+		height: 20px;
+		pointer-events: none;
+	}
+
+	@media (max-width: 768px) {
+		.scroll-to-top-button {
+			width: 45px;
+			height: 45px;
+			bottom: 20px;
+			right: 20px;
+		}
+
+		.scroll-to-top-button svg {
+			width: 18px;
+			height: 18px;
+		}
+	}
+</style>
+
