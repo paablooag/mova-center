@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "astro": "^4.0.0",
-    "gsap": "^3.13.0"
+    "gsap": "^3.13.0",
+    "particles.js": "^2.0.0"
   },
   "devDependencies": {
     "@astrojs/tailwind": "^5.1.0",

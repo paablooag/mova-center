@@ -4,8 +4,10 @@
 
 
 
-<section id="inicio" class="min-h-screen flex items-center justify-center px-4 sm:px-6 py-16 sm:py-20 relative">
-	<div class="max-w-4xl mx-auto text-center">
+<section id="inicio" class="min-h-[105vh] sm:min-h-[110vh] flex flex-col items-center justify-center px-4 sm:px-6 py-16 sm:py-20 relative">
+	<!-- Contenedor de partículas - Solo visible en desktop -->
+	<div id="particles-js" class="hidden lg:block absolute inset-0 w-full h-full z-0"></div>
+	<div class="max-w-3xl mx-auto text-center flex-1 flex flex-col justify-center relative z-10">
 		<h1 class="text-4xl sm:text-6xl md:text-8xl font-bold mb-4 sm:mb-6 tracking-tight animate-fade-in-up">
 			MOVA CENTER
 		</h1>
@@ -23,13 +25,275 @@
 			href="https://forms.gle/iy1muycEfLf767Mk7" 
 			target="_blank"
 			rel="noopener noreferrer"
-			class="inline-block bg-black text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold hover:bg-gray-900 transition-all duration-300 hover:scale-105 animate-fade-in-up"
+			class="inline-block bg-black text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold hover:bg-gray-900 transition-all duration-300 hover:scale-105 animate-fade-in-up mb-8 sm:mb-10"
 			style="animation-delay: 0.6s"
 		>
 			Reserva tu primera sesión
 		</a>
+		<div 
+			id="scroll-indicator" 
+			class="cursor-pointer animate-fade-in-up mt-4"
+			style="animation-delay: 0.8s"
+		>
+			<svg 
+				width="24" 
+				height="24" 
+				viewBox="0 0 24 24" 
+				fill="none" 
+				stroke="currentColor" 
+				stroke-width="2" 
+				stroke-linecap="round" 
+				stroke-linejoin="round"
+				class="text-gray-700 mx-auto"
+			>
+				<path d="M12 5v14M19 12l-7 7-7-7" />
+			</svg>
+		</div>
 	</div>
 </section>
+
+<script>
+	import { gsap } from 'gsap';
+
+	// Declaración de tipos para particles.js
+	declare global {
+		interface Window {
+			particlesJS: (elementId: string, config: any) => void;
+		}
+	}
+
+	function initParticles() {
+		// Solo inicializar en desktop (pantallas >= 1024px)
+		if (window.innerWidth >= 1024) {
+			// Cargar particles.js desde CDN
+			if (!window.particlesJS) {
+				const script = document.createElement('script');
+				script.src = 'https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js';
+				script.onload = () => {
+					initParticlesConfig();
+				};
+				document.head.appendChild(script);
+			} else {
+				initParticlesConfig();
+			}
+		}
+	}
+
+	function initParticlesConfig() {
+		const particlesContainer = document.getElementById('particles-js');
+		if (!particlesContainer || !window.particlesJS) return;
+
+		window.particlesJS('particles-js', {
+			particles: {
+				number: {
+					value: 80,
+					density: {
+						enable: true,
+						value_area: 800
+					}
+				},
+				color: {
+					value: '#000000'
+				},
+				shape: {
+					type: 'circle',
+					stroke: {
+						width: 0,
+						color: '#000000'
+					}
+				},
+				opacity: {
+					value: 0.3,
+					random: false,
+					anim: {
+						enable: false,
+						speed: 1,
+						opacity_min: 0.1,
+						sync: false
+					}
+				},
+				size: {
+					value: 3,
+					random: true,
+					anim: {
+						enable: false,
+						speed: 40,
+						size_min: 0.1,
+						sync: false
+					}
+				},
+				line_linked: {
+					enable: true,
+					distance: 150,
+					color: '#000000',
+					opacity: 0.2,
+					width: 1
+				},
+				move: {
+					enable: true,
+					speed: 2,
+					direction: 'none',
+					random: false,
+					straight: false,
+					out_mode: 'out',
+					bounce: false,
+					attract: {
+						enable: false,
+						rotateX: 600,
+						rotateY: 1200
+					}
+				}
+			},
+			interactivity: {
+				detect_on: 'canvas',
+				events: {
+					onhover: {
+						enable: true,
+						mode: 'repulse'
+					},
+					onclick: {
+						enable: true,
+						mode: 'push'
+					},
+					resize: true
+				},
+				modes: {
+					grab: {
+						distance: 400,
+						line_linked: {
+							opacity: 1
+						}
+					},
+					bubble: {
+						distance: 400,
+						size: 40,
+						duration: 2,
+						opacity: 8,
+						speed: 3
+					},
+					repulse: {
+						distance: 200,
+						duration: 0.4
+					},
+					push: {
+						particles_nb: 4
+					},
+					remove: {
+						particles_nb: 2
+					}
+				}
+			},
+			retina_detect: true
+		});
+	}
+
+	function initHero() {
+		const scrollIndicator = document.querySelector('#scroll-indicator');
+		
+		if (!scrollIndicator) {
+			requestAnimationFrame(initHero);
+			return;
+		}
+
+		// Animación de la flecha con rebote continuo
+		gsap.to('#scroll-indicator', {
+			y: 10,
+			duration: 1.5,
+			ease: 'sine.inOut',
+			yoyo: true,
+			repeat: -1
+		});
+
+		// Click en la flecha para hacer scroll suave
+		scrollIndicator.addEventListener('click', () => {
+			const aboutSection = document.querySelector('#servicios') || document.querySelector('.py-12');
+			if (aboutSection) {
+				const startY = window.scrollY || document.documentElement.scrollTop;
+				const targetY = aboutSection.getBoundingClientRect().top + startY;
+				const startTime = Date.now();
+				const duration = 1000;
+
+				const animateScroll = () => {
+					const currentTime = Date.now();
+					const elapsed = currentTime - startTime;
+					const progress = Math.min(elapsed / duration, 1);
+
+					// Función de easing (easeInOutCubic)
+					const easeInOutCubic = (t: number) => {
+						return t < 0.5
+							? 4 * t * t * t
+							: 1 - Math.pow(-2 * t + 2, 3) / 2;
+					};
+
+					const easedProgress = easeInOutCubic(progress);
+					const currentY = startY + (targetY - startY) * easedProgress;
+
+					window.scrollTo(0, currentY);
+
+					if (progress < 1) {
+						requestAnimationFrame(animateScroll);
+					}
+				};
+
+				animateScroll();
+			} else {
+				// Fallback: scroll simple
+				window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+			}
+
+			// Animación del click
+			gsap.to('#scroll-indicator', {
+				scale: 0.8,
+				duration: 0.1,
+				yoyo: true,
+				repeat: 1,
+				ease: 'power2.inOut'
+			});
+		});
+
+		// Efecto hover
+		scrollIndicator.addEventListener('mouseenter', () => {
+			gsap.to('#scroll-indicator', {
+				scale: 1.2,
+				duration: 0.3,
+				ease: 'back.out(2)'
+			});
+		});
+
+		scrollIndicator.addEventListener('mouseleave', () => {
+			gsap.to('#scroll-indicator', {
+				scale: 1,
+				duration: 0.3,
+				ease: 'power2.out'
+			});
+		});
+	}
+
+	// Inicializar cuando el DOM esté listo
+	if (typeof window !== 'undefined') {
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', () => {
+				initHero();
+				initParticles();
+			});
+		} else {
+			initHero();
+			initParticles();
+		}
+
+		// Re-inicializar partículas si cambia el tamaño de ventana (solo en desktop)
+		let resizeTimer: ReturnType<typeof setTimeout>;
+		window.addEventListener('resize', () => {
+			clearTimeout(resizeTimer);
+			resizeTimer = setTimeout(() => {
+				const particlesContainer = document.getElementById('particles-js');
+				if (window.innerWidth >= 1024 && particlesContainer && !particlesContainer.hasChildNodes()) {
+					initParticles();
+				}
+			}, 250);
+		});
+	}
+</script>
 
 <style>
 	@keyframes fade-in-up {
@@ -45,6 +309,24 @@
 
 	.animate-fade-in-up {
 		animation: fade-in-up 1s ease-out both;
+	}
+
+	/* Estilos para particles.js - solo visible en desktop */
+	#particles-js {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 0;
+	}
+
+	#particles-js canvas {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
 	}
 </style>
 
