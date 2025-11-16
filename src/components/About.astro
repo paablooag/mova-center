@@ -1,6 +1,6 @@
-<section class="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-white">
+<section class="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-white relative" style="z-index: 10001;">
 	<div class="max-w-6xl mx-auto">
-		<div class="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
+		<div class="grid md:grid-cols-2 gap-8 sm:gap-12 items-center mb-8 sm:mb-12">
 			<div class="animate-slide-in-left order-2 md:order-1">
 				<h2 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
 					Sobre MOVA CENTER
@@ -15,7 +15,7 @@
 					Además, ofrecemos programas especializados para la recuperación de lesiones, combinando ejercicio terapéutico con entrenamiento funcional.
 				</p>
 			</div>
-			<div class="relative h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-lg animate-slide-in-right hover:scale-105 transition-transform duration-500 order-1 md:order-2">
+			<div class="relative h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-lg animate-slide-in-right hover:scale-105 transition-transform duration-500 order-1 md:order-2 cursor-pointer gallery-image">
 				<img 
 					src="/imagen-local.jpg" 
 					alt="Instalaciones MOVA CENTER - Centro de entrenamiento funcional en Granada" 
@@ -23,13 +23,419 @@
 					loading="lazy"
 					width="800"
 					height="600"
+					data-src="/imagen-local.jpg"
 				/>
+			</div>
+		</div>
+		<!-- Galería de imágenes del interior -->
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 animate-fade-in">
+			<div class="relative h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform duration-500 cursor-pointer gallery-image">
+				<img 
+					src="/interior-mova.jpg" 
+					alt="Interior de MOVA CENTER - Gimnasio funcional equipado con material de entrenamiento" 
+					class="w-full h-full object-cover"
+					loading="lazy"
+					width="800"
+					height="600"
+					data-src="/interior-mova.jpg"
+				/>
+			</div>
+			<div class="relative h-64 sm:h-80 md:h-96 rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform duration-500 cursor-pointer gallery-image">
+				<img 
+					src="/martin-alex-mova.jpg" 
+					alt="Vista general de MOVA CENTER - Instalaciones modernas para entrenamiento funcional" 
+					class="w-full h-full object-cover"
+					loading="lazy"
+					width="800"
+					height="600"
+					data-src="/martin-alex-mova.jpg"
+				/>
+			</div>
+		</div>
+	</div>
+
+	<!-- Lightbox Modal -->
+	<div id="lightbox-modal" class="lightbox-modal" style="display: none;">
+		<div class="lightbox-overlay"></div>
+		<div class="lightbox-content">
+			<button id="lightbox-close" class="lightbox-close" aria-label="Cerrar">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M18 6L6 18M6 6l12 12"/>
+				</svg>
+			</button>
+			<button id="lightbox-prev" class="lightbox-nav lightbox-prev" aria-label="Imagen anterior">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M15 18l-6-6 6-6"/>
+				</svg>
+			</button>
+			<button id="lightbox-next" class="lightbox-nav lightbox-next" aria-label="Imagen siguiente">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M9 18l6-6-6-6"/>
+				</svg>
+			</button>
+			<div class="lightbox-image-wrapper">
+				<img id="lightbox-image" src="" alt="" class="lightbox-img" />
 			</div>
 		</div>
 	</div>
 </section>
 
+<script>
+	import { gsap } from 'gsap';
+
+	function initLightbox() {
+		const modal = document.getElementById('lightbox-modal');
+		const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement;
+		const closeBtn = document.getElementById('lightbox-close');
+		const prevBtn = document.getElementById('lightbox-prev');
+		const nextBtn = document.getElementById('lightbox-next');
+		const overlay = modal?.querySelector('.lightbox-overlay');
+		const galleryImages = document.querySelectorAll('.gallery-image');
+
+		if (!modal || !lightboxImage || !closeBtn || !prevBtn || !nextBtn) {
+			requestAnimationFrame(initLightbox);
+			return;
+		}
+
+		// Array de imágenes con sus datos
+		const images: Array<{ src: string; alt: string }> = [];
+		let currentIndex = 0;
+
+		// Llenar el array de imágenes
+		galleryImages.forEach((imageContainer) => {
+			const img = imageContainer.querySelector('img');
+			if (img) {
+				const imgSrc = img.getAttribute('data-src') || img.src;
+				const imgAlt = img.alt;
+				images.push({ src: imgSrc, alt: imgAlt });
+			}
+		});
+
+		// Función para actualizar la imagen
+		function updateImage(index: number) {
+			if (index < 0 || index >= images.length) return;
+			currentIndex = index;
+			const currentImg = images[currentIndex];
+			
+			gsap.to(lightboxImage, {
+				opacity: 0,
+				duration: 0.2,
+				onComplete: () => {
+					lightboxImage.src = currentImg.src;
+					lightboxImage.alt = currentImg.alt;
+					gsap.to(lightboxImage, {
+						opacity: 1,
+						duration: 0.3
+					});
+				}
+			});
+
+			// Mostrar/ocultar flechas según la posición
+			if (prevBtn && nextBtn) {
+				if (images.length <= 1) {
+					prevBtn.style.display = 'none';
+					nextBtn.style.display = 'none';
+				} else {
+					prevBtn.style.display = 'flex';
+					nextBtn.style.display = 'flex';
+				}
+			}
+		}
+
+		// Función para abrir el lightbox
+		function openLightbox(index: number) {
+			if (!modal) return;
+			currentIndex = index;
+			updateImage(currentIndex);
+			modal.style.display = 'block';
+			document.body.style.overflow = 'hidden';
+
+			gsap.fromTo(modal, 
+				{ opacity: 0 },
+				{ opacity: 1, duration: 0.3 }
+			);
+			gsap.fromTo('.lightbox-content', 
+				{ scale: 0.9, opacity: 0 },
+				{ scale: 1, opacity: 1, duration: 0.3, ease: 'power2.out' }
+			);
+		}
+
+		// Función para cerrar el lightbox
+		function closeLightbox() {
+			if (!modal) return;
+			gsap.to(modal, {
+				opacity: 0,
+				duration: 0.2,
+				onComplete: () => {
+					if (modal) {
+						modal.style.display = 'none';
+					}
+					document.body.style.overflow = '';
+				}
+			});
+		}
+
+		// Navegación anterior
+		function prevImage() {
+			const newIndex = (currentIndex - 1 + images.length) % images.length;
+			updateImage(newIndex);
+		}
+
+		// Navegación siguiente
+		function nextImage() {
+			const newIndex = (currentIndex + 1) % images.length;
+			updateImage(newIndex);
+		}
+
+		// Agregar evento click a las imágenes
+		galleryImages.forEach((imageContainer, index) => {
+			imageContainer.addEventListener('click', () => {
+				openLightbox(index);
+			});
+		});
+
+		// Event listeners
+		if (closeBtn) {
+			closeBtn.addEventListener('click', closeLightbox);
+		}
+		
+		if (prevBtn) {
+			prevBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				prevImage();
+			});
+		}
+		
+		if (nextBtn) {
+			nextBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				nextImage();
+			});
+		}
+
+		// Cerrar haciendo clic en el overlay
+		if (overlay) {
+			overlay.addEventListener('click', closeLightbox);
+		}
+
+		// Navegación con teclado
+		document.addEventListener('keydown', (e) => {
+			if (!modal || modal.style.display !== 'block') return;
+			
+			if (e.key === 'Escape') {
+				closeLightbox();
+			} else if (e.key === 'ArrowLeft') {
+				prevImage();
+			} else if (e.key === 'ArrowRight') {
+				nextImage();
+			}
+		});
+	}
+
+	// Inicializar cuando el DOM esté listo
+	if (typeof window !== 'undefined') {
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', initLightbox);
+		} else {
+			initLightbox();
+		}
+	}
+</script>
+
 <style>
+	.gallery-image {
+		cursor: pointer;
+	}
+
+	.gallery-image:hover {
+		cursor: zoom-in;
+	}
+
+	/* Lightbox Modal */
+	.lightbox-modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 10000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 40px 20px;
+		margin: 0;
+	}
+
+	.lightbox-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: transparent;
+	}
+
+	.lightbox-content {
+		position: relative;
+		width: 100%;
+		max-width: 800px;
+		max-height: 85vh;
+		margin: auto;
+		z-index: 10001;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 20px;
+		transform: translateY(0);
+	}
+
+	.lightbox-image-wrapper {
+		width: 100%;
+		height: 100%;
+		min-height: 400px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: transparent;
+		border-radius: 12px;
+		padding: 20px;
+		margin: 0 auto;
+	}
+
+	.lightbox-img {
+		max-width: 100%;
+		max-height: 75vh;
+		width: auto;
+		height: auto;
+		object-fit: contain;
+		border-radius: 8px;
+		border: 4px solid white;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		opacity: 1;
+		transition: opacity 0.3s ease;
+	}
+
+	.lightbox-close {
+		position: absolute;
+		top: 20px;
+		right: 20px;
+		width: 44px;
+		height: 44px;
+		background: rgba(255, 255, 255, 0.95);
+		border: none;
+		border-radius: 50%;
+		color: #333;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.3s ease;
+		z-index: 10003;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	}
+
+	.lightbox-close:hover {
+		background: white;
+		transform: rotate(90deg) scale(1.1);
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+	}
+
+	.lightbox-close svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	.lightbox-nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 48px;
+		height: 48px;
+		background: rgba(255, 255, 255, 0.95);
+		border: none;
+		border-radius: 50%;
+		color: #333;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.3s ease;
+		z-index: 10002;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	}
+
+	.lightbox-nav:hover {
+		background: white;
+		transform: translateY(-50%) scale(1.1);
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+	}
+
+	.lightbox-nav:active {
+		transform: translateY(-50%) scale(0.95);
+	}
+
+	.lightbox-prev {
+		left: 20px;
+	}
+
+	.lightbox-next {
+		right: 20px;
+	}
+
+	.lightbox-nav svg {
+		width: 24px;
+		height: 24px;
+	}
+
+	@media (max-width: 768px) {
+		.lightbox-modal {
+			padding: 20px 10px;
+		}
+
+		.lightbox-content {
+			max-width: 95vw;
+			padding: 10px;
+		}
+
+		.lightbox-image-wrapper {
+			padding: 15px;
+		}
+
+		.lightbox-img {
+			max-height: 70vh;
+		}
+
+		.lightbox-close {
+			top: 10px;
+			right: 10px;
+			width: 40px;
+			height: 40px;
+		}
+
+		.lightbox-close svg {
+			width: 18px;
+			height: 18px;
+		}
+
+		.lightbox-nav {
+			width: 40px;
+			height: 40px;
+		}
+
+		.lightbox-prev {
+			left: 10px;
+		}
+
+		.lightbox-next {
+			right: 10px;
+		}
+
+		.lightbox-nav svg {
+			width: 20px;
+			height: 20px;
+		}
+	}
+
 	@keyframes slide-in-left {
 		from {
 			opacity: 0;
@@ -58,6 +464,21 @@
 
 	.animate-slide-in-right {
 		animation: slide-in-right 0.8s ease-out;
+	}
+
+	.animate-fade-in {
+		animation: fade-in 1s ease-out;
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 </style>
 

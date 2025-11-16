@@ -5,8 +5,8 @@
 
 
 <section id="inicio" class="min-h-[105vh] sm:min-h-[110vh] flex flex-col items-center justify-center px-4 sm:px-6 py-16 sm:py-20 relative">
-	<!-- Contenedor de partículas - Solo visible en desktop -->
-	<div id="particles-js" class="hidden lg:block absolute inset-0 w-full h-full z-0"></div>
+	<!-- Contenedor de partículas -->
+	<div id="particles-js" class="absolute inset-0 w-full h-full z-0"></div>
 	<div class="max-w-3xl mx-auto text-center flex-1 flex flex-col justify-center relative z-10">
 		<h1 class="text-4xl sm:text-6xl md:text-8xl font-bold mb-4 sm:mb-6 tracking-tight animate-fade-in-up">
 			MOVA CENTER
@@ -22,7 +22,7 @@
 			<span>Granada</span>
 		</div>
 		<a 
-			href="https://forms.gle/iy1muycEfLf767Mk7" 
+			href="https://wa.me/34699025371?text=¡Hola!%20Me%20gustaría%20reservar%20mi%20primera%20sesión%20en%20MOVA%20CENTER." 
 			target="_blank"
 			rel="noopener noreferrer"
 			class="inline-block bg-black text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold hover:bg-gray-900 transition-all duration-300 hover:scale-105 animate-fade-in-up mb-8 sm:mb-10"
@@ -63,19 +63,16 @@
 	}
 
 	function initParticles() {
-		// Solo inicializar en desktop (pantallas >= 1024px)
-		if (window.innerWidth >= 1024) {
-			// Cargar particles.js desde CDN
-			if (!window.particlesJS) {
-				const script = document.createElement('script');
-				script.src = 'https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js';
-				script.onload = () => {
-					initParticlesConfig();
-				};
-				document.head.appendChild(script);
-			} else {
+		// Cargar particles.js desde CDN
+		if (!window.particlesJS) {
+			const script = document.createElement('script');
+			script.src = 'https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js';
+			script.onload = () => {
 				initParticlesConfig();
-			}
+			};
+			document.head.appendChild(script);
+		} else {
+			initParticlesConfig();
 		}
 	}
 
@@ -83,10 +80,14 @@
 		const particlesContainer = document.getElementById('particles-js');
 		if (!particlesContainer || !window.particlesJS) return;
 
+		// Reducir número de partículas en móvil para mejor rendimiento
+		const isMobile = window.innerWidth < 768;
+		const particleNumber = isMobile ? 50 : 80;
+
 		window.particlesJS('particles-js', {
 			particles: {
 				number: {
-					value: 80,
+					value: particleNumber,
 					density: {
 						enable: true,
 						value_area: 800
@@ -124,7 +125,7 @@
 				},
 				line_linked: {
 					enable: true,
-					distance: 150,
+					distance: isMobile ? 120 : 150,
 					color: '#000000',
 					opacity: 0.2,
 					width: 1
@@ -281,13 +282,13 @@
 			initParticles();
 		}
 
-		// Re-inicializar partículas si cambia el tamaño de ventana (solo en desktop)
+		// Re-inicializar partículas si cambia el tamaño de ventana
 		let resizeTimer: ReturnType<typeof setTimeout>;
 		window.addEventListener('resize', () => {
 			clearTimeout(resizeTimer);
 			resizeTimer = setTimeout(() => {
 				const particlesContainer = document.getElementById('particles-js');
-				if (window.innerWidth >= 1024 && particlesContainer && !particlesContainer.hasChildNodes()) {
+				if (particlesContainer && !particlesContainer.hasChildNodes()) {
 					initParticles();
 				}
 			}, 250);

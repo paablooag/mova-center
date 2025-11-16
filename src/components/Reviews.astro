@@ -301,7 +301,7 @@
 		});
 
 		// Función para el slider infinito
-		let animation;
+		let animation: gsap.core.Tween | null = null;
 		let isPaused = false;
 		
 		function startSlider() {
@@ -311,32 +311,266 @@
 			// Calcular el ancho de la mitad para hacer el loop infinito
 			const halfWidth = totalWidth / 2;
 			
+			// Si ya existe una animación, matarla primero
+			if (animation) {
+				animation.kill();
+			}
+			
 			// Crear animación que se mueve continuamente (más lenta)
 			animation = gsap.to(track, {
 				x: -halfWidth,
 				duration: 80, // 80 segundos para recorrer la mitad (más lento)
 				ease: 'none',
 				repeat: -1,
-				onUpdate: () => {
-					// Cuando llega a la mitad, resetear sin saltar
-					const currentX = gsap.getProperty(track, 'x');
-					if (currentX <= -halfWidth) {
-						gsap.set(track, { x: 0 });
+				modifiers: {
+					x: (x) => {
+						const val = parseFloat(x);
+						if (val <= -halfWidth) {
+							return '0';
+						}
+						return val + 'px';
 					}
 				}
 			});
 		}
 
-		// Pausar al hacer hover
-		reviewsContainer.addEventListener('mouseenter', () => {
+		// Variables para drag/swipe
+		let isDragging = false;
+		let startX = 0;
+		let currentX = 0;
+		let scrollLeft = 0;
+		let dragStartTime = 0;
+
+		// Función para obtener la posición X actual del track
+		function getTrackX() {
+			return gsap.getProperty(track, 'x') as number;
+		}
+
+		// Función para establecer la posición X del track
+		function setTrackX(x: number) {
+			gsap.set(track, { x: x });
+		}
+
+		// Función para limitar el desplazamiento
+		function constrainX(x: number) {
+			const maxX = 0;
+			const minX = -(totalWidth / 2);
+			return Math.max(minX, Math.min(maxX, x));
+		}
+
+		// Mouse events para desktop
+		const handleMouseDown = (e: MouseEvent) => {
 			if (animation) {
+				animation.pause();
+				isPaused = true;
+			}
+			isDragging = true;
+			reviewsContainer.style.cursor = 'grabbing';
+			startX = e.pageX - reviewsContainer.offsetLeft;
+			scrollLeft = getTrackX();
+			dragStartTime = Date.now();
+		};
+
+		const handleMouseMove = (e: MouseEvent) => {
+			if (!isDragging) return;
+			e.preventDefault();
+			const x = e.pageX - reviewsContainer.offsetLeft;
+			const walk = (x - startX) * 1.5; // Multiplicador para más sensibilidad
+			const newX = constrainX(scrollLeft + walk);
+			setTrackX(newX);
+		};
+
+		const handleMouseUp = () => {
+			if (!isDragging) return;
+			isDragging = false;
+			reviewsContainer.style.cursor = 'grab';
+			
+			// Si el drag fue muy corto y rápido, no reiniciar animación
+			const dragDuration = Date.now() - dragStartTime;
+			if (dragDuration < 100) {
+				// Reiniciar animación desde la posición actual
+				const currentX = getTrackX();
+				const halfWidth = totalWidth / 2;
+				
+				if (animation) {
+					animation.kill();
+				}
+				
+				// Calcular la posición relativa dentro del ciclo
+				const relativeX = currentX % (-halfWidth);
+				const newStartX = relativeX > 0 ? relativeX - halfWidth : relativeX;
+				setTrackX(newStartX);
+				
+				animation = gsap.to(track, {
+					x: -halfWidth,
+					duration: 80,
+					ease: 'none',
+					repeat: -1,
+					modifiers: {
+						x: (x) => {
+							const val = parseFloat(x);
+							if (val <= -halfWidth) {
+								return '0';
+							}
+							return val + 'px';
+						}
+					}
+				});
+				isPaused = false;
+			} else {
+				// Si fue un drag largo, reiniciar animación después de un momento
+				setTimeout(() => {
+					if (!isDragging && isPaused) {
+						const currentX = getTrackX();
+						const halfWidth = totalWidth / 2;
+						
+						if (animation) {
+							animation.kill();
+						}
+						
+						const relativeX = currentX % (-halfWidth);
+						const newStartX = relativeX > 0 ? relativeX - halfWidth : relativeX;
+						setTrackX(newStartX);
+						
+						animation = gsap.to(track, {
+							x: -halfWidth,
+							duration: 80,
+							ease: 'none',
+							repeat: -1,
+							modifiers: {
+								x: (x) => {
+									const val = parseFloat(x);
+									if (val <= -halfWidth) {
+										return '0';
+									}
+									return val + 'px';
+								}
+							}
+						});
+						isPaused = false;
+					}
+				}, 500);
+			}
+		};
+
+		const handleMouseLeave = () => {
+			if (isDragging) {
+				isDragging = false;
+				reviewsContainer.style.cursor = 'grab';
+				handleMouseUp();
+			}
+		};
+
+		// Touch events para móvil
+		const handleTouchStart = (e: TouchEvent) => {
+			if (animation) {
+				animation.pause();
+				isPaused = true;
+			}
+			isDragging = true;
+			startX = e.touches[0].pageX - reviewsContainer.offsetLeft;
+			scrollLeft = getTrackX();
+			dragStartTime = Date.now();
+		};
+
+		const handleTouchMove = (e: TouchEvent) => {
+			if (!isDragging) return;
+			const x = e.touches[0].pageX - reviewsContainer.offsetLeft;
+			const walk = (x - startX) * 1.5;
+			const newX = constrainX(scrollLeft + walk);
+			setTrackX(newX);
+		};
+
+		const handleTouchEnd = () => {
+			if (!isDragging) return;
+			isDragging = false;
+			
+			const dragDuration = Date.now() - dragStartTime;
+			if (dragDuration < 100) {
+				const currentX = getTrackX();
+				const halfWidth = totalWidth / 2;
+				
+				if (animation) {
+					animation.kill();
+				}
+				
+				const relativeX = currentX % (-halfWidth);
+				const newStartX = relativeX > 0 ? relativeX - halfWidth : relativeX;
+				setTrackX(newStartX);
+				
+				animation = gsap.to(track, {
+					x: -halfWidth,
+					duration: 80,
+					ease: 'none',
+					repeat: -1,
+					modifiers: {
+						x: (x) => {
+							const val = parseFloat(x);
+							if (val <= -halfWidth) {
+								return '0';
+							}
+							return val + 'px';
+						}
+					}
+				});
+				isPaused = false;
+			} else {
+				setTimeout(() => {
+					if (!isDragging && isPaused) {
+						const currentX = getTrackX();
+						const halfWidth = totalWidth / 2;
+						
+						if (animation) {
+							animation.kill();
+						}
+						
+						const relativeX = currentX % (-halfWidth);
+						const newStartX = relativeX > 0 ? relativeX - halfWidth : relativeX;
+						setTrackX(newStartX);
+						
+						animation = gsap.to(track, {
+							x: -halfWidth,
+							duration: 80,
+							ease: 'none',
+							repeat: -1,
+							modifiers: {
+								x: (x) => {
+									const val = parseFloat(x);
+									if (val <= -halfWidth) {
+										return '0';
+									}
+									return val + 'px';
+								}
+							}
+						});
+						isPaused = false;
+					}
+				}, 500);
+			}
+		};
+
+		// Event listeners para drag (mousemove y mouseup en document para que funcione fuera del contenedor)
+		reviewsContainer.style.cursor = 'grab';
+		reviewsContainer.addEventListener('mousedown', handleMouseDown);
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseup', handleMouseUp);
+		reviewsContainer.addEventListener('mouseleave', handleMouseLeave);
+
+		// Touch events
+		reviewsContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+		reviewsContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+		reviewsContainer.addEventListener('touchend', handleTouchEnd);
+
+		// Pausar al hacer hover (solo si no está arrastrando)
+		reviewsContainer.addEventListener('mouseenter', () => {
+			if (!isDragging && animation && !isPaused) {
 				animation.pause();
 				isPaused = true;
 			}
 		});
 
 		reviewsContainer.addEventListener('mouseleave', () => {
-			if (animation && isPaused) {
+			if (!isDragging && animation && isPaused) {
 				animation.resume();
 				isPaused = false;
 			}
@@ -400,6 +634,10 @@
 		width: 100%;
 		max-width: 1000px;
 		margin: 0 auto;
+		cursor: grab;
+		user-select: none;
+		-webkit-user-select: none;
+		touch-action: pan-y;
 		mask-image: linear-gradient(
 			to right,
 			transparent 0%,
@@ -414,6 +652,10 @@
 			black 97%,
 			transparent 100%
 		);
+	}
+
+	.reviews-slider-container:active {
+		cursor: grabbing;
 	}
 
 	.reviews-track-combined {
